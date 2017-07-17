@@ -111,7 +111,7 @@ class OpenTypeFont:
         table_hdrs = [_OTF_TABLE_RECORD.parse(fin) for i in six.moves.range(hdr.numTables)]
         table_hdrs.sort(key=lambda tab: tab.offset)
 
-        blob = grope.wrap_file(fin)
+        blob = grope.wrap_io(fin)
         tables = [OtfUnparsedTable(tab.tag, blob[tab.offset:tab.offset + tab.length]) for tab in table_hdrs]
         return OpenTypeFont(tables)
 

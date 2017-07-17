@@ -22,8 +22,7 @@ def _main():
     out_blob = font.save()
 
     with open(args.output, 'wb') as fout:
-        for chunk in grope.iter_rope(out_blob):
-            fout.write(chunk)
+        grope.dump(out_blob, fout)
 
     return 0
 
