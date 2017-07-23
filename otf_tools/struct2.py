@@ -6,6 +6,25 @@ def struct_le(fn, *entries):
 def struct_be(fn, *entries):
     return _struct(fn, entries, endian='>')
 
+def parse(fin, fmt):
+    size = struct.calcsize(fmt)
+    s = fin.read(size)
+    return struct.unpack(fmt, s)
+
+def parse_array(fin, fmt, count):
+    size_one = struct.calcsize(fmt)
+
+    r = []
+
+    fmt_templ = fmt[0] + '{}' + fmt[1:]
+    while count:
+        chunk = min(count, 16*1024)
+        s = fin.read(size_one * chunk)
+        r.extend(struct.unpack(fmt_templ.format(chunk), s))
+        count -= chunk
+
+    return r
+
 def _struct(fn, entries, endian):
     fmt_string = [endian]
     names = []

@@ -109,6 +109,14 @@ class OtfCmapTable:
             self._map = parser(blob, enc.offset)
             break
 
+        self._inv_map = {}
+        for idx, gid in enumerate(self._map):
+            if gid:
+                self._inv_map[gid] = chr(idx)
+
+    def inv(self, gids, repl='\uffff'):
+        return ''.join(self._inv_map.get(gid, repl) for gid in gids)
+
     def pack(self):
         segments = []
 

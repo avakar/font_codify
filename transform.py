@@ -13,6 +13,12 @@ def _main():
     
     font = OpenTypeFont.parse(args.input)
 
+
+    glyphs = font.get_glyphs('1 != 0')
+    s = font.inv_glyphs([68, 210, 987])
+
+    gsub = font.gsub()
+
     cmap = font.get(b'cmap')
 
     import string

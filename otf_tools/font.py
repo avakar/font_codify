@@ -2,6 +2,7 @@ import grope, six, math, struct
 from grope import rope
 from .struct2 import struct_be
 from .cmap import OtfCmapTable
+from .adv_typo import OtfGsubTable
 
 @struct_be
 class _OTF_OFFSET_TABLE:
@@ -59,13 +60,16 @@ class OtfUnparsedTable:
     def pack(self):
         return self.blob
 
+    def __repr__(self):
+        return 'OtfUnparsedTable(name={!r}, blob={!r})'.format(self.name, self.blob)
+
 class OtfUnparsableTable:
     def __init__(self, name, blob):
         self.name = name
-        self._blob = blob
+        self.blob = blob
 
     def pack(self):
-        return self._blob
+        return self.blob
 
 class OtfHeadTable:
     def __init__(self, name, blob):
@@ -79,6 +83,7 @@ class OtfHeadTable:
 _table_parsers = {
     b'head': OtfHeadTable,
     b'cmap': OtfCmapTable,
+    b'GSUB': OtfGsubTable,
     }
 
 def _otf_table_checksum(b):
@@ -127,6 +132,18 @@ class OpenTypeFont:
             self._tables[i] = table
 
         return table
+
+    def inv_glyphs(self, gids):
+        cmap = self.get(b'cmap')
+        return cmap.inv(gids)
+
+    def get_glyphs(self, chars):
+        cmap = self.get(b'cmap')
+        gids = [cmap[ch] for ch in chars]
+
+        gsub = self.get(b'GSUB')
+        subber = gsub.make_subber(lambda name: False)
+        return subber.sub(gids)
 
     def save(self):
         log_num_tables = int(math.floor(math.log2(len(self._tables))))
